@@ -29,14 +29,12 @@ let drawSquareCursor () =
 
     [ mY - radius .. mY + radius ]
     |> List.allPairs [ mX - radius .. mX + radius ]
-    |> List.map (fun (x, y) -> Rl.DrawPixel(x, y, Color.LightGray))
-    |> ignore
+    |> List.iter (fun (x, y) -> Rl.DrawPixel(x, y, Color.LightGray))
 
 let drawPoint (x, y) =
     [ y - 1 .. y + 1 ]
     |> List.allPairs [ x - 1 .. x + 1 ]
-    |> List.map (fun (x, y) -> Rl.DrawPixel(x, y, Color.Violet'))
-    |> ignore
+    |> List.iter (fun (x, y) -> Rl.DrawPixel(x, y, Color.Violet'))
 
 let ortho_project state (vec3: Vector3) =
     Vector2(vec3.X / vec3.Z * state.FOV, vec3.Y / vec3.Z * state.FOV)
@@ -51,9 +49,7 @@ let showCameraCoord (x, y) =
 let draw (state: State) =
     Rl.ClearBackground Color.Black
 
-    toDrawOn
-    |> List.map (fun (y, x) -> Rl.DrawPixel(x, y, Color.GridGray))
-    |> ignore
+    toDrawOn |> List.iter (fun (y, x) -> Rl.DrawPixel(x, y, Color.GridGray))
 
     state.Cube
     |> List.map (fun vec ->
@@ -62,9 +58,8 @@ let draw (state: State) =
             vec.Z + state.CameraPos.Z
         ))
     |> List.map (ortho_project state)
-    |> List.map (fun vec ->
+    |> List.iter (fun vec ->
         drawPoint (int vec.X + State.WinX / 2, int vec.Y + State.WinY / 2))
-    |> ignore
 
     showCameraCoord (800, 20) state.SelectedCamCoord
 
