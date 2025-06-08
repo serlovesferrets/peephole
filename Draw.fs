@@ -102,10 +102,6 @@ let draw (state: State) =
     |> List.iter (fun vec ->
         drawPoint (int vec.X + State.WinX / 2, int vec.Y + State.WinY / 2))
 
-
-    // Top left
-
-
     // Bottom left
     showCameraCoord (20, State.WinY - 40) state state.SelectedCamCoord
 
