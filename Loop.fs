@@ -1,8 +1,11 @@
 module Renderer.Loop
 
 open State
+open System
 open Raylib_cs
 open Extensions.RaylibExts
+
+let private speed = 0.03f
 
 [<TailCall>]
 let rec loop state =
@@ -14,8 +17,16 @@ let rec loop state =
         Rl.EndDrawing()
 
         state')
+    |> (fun state ->
+        { state with
+            CubeRot = state.CubeRot + 0.005f })
     |> function
         | state when Rl.WindowShouldClose'() -> state
+        | state when Rl.IsKeyPressed' KeyboardKey.F12 ->
+            loop
+                { state with
+                    ShouldDebugPoints = not state.ShouldDebugPoints }
+
 
         | state when Rl.IsKeyPressed' KeyboardKey.Left ->
             if state.CubeSize = 0 then
@@ -23,7 +34,7 @@ let rec loop state =
             else
                 let newState =
                     { state with
-                        Cube = Shapes.cube (state.CubeSize - 1)
+                        Points = Shapes.cube (state.CubeSize - 1)
                         CubeSize = state.CubeSize - 1 }
 
                 loop newState
@@ -31,7 +42,7 @@ let rec loop state =
         | state when Rl.IsKeyPressed' KeyboardKey.Right ->
             let newState =
                 { state with
-                    Cube = Shapes.cube (state.CubeSize + 1)
+                    Points = Shapes.cube (state.CubeSize + 1)
                     CubeSize = state.CubeSize + 1 }
 
             loop newState
@@ -41,13 +52,13 @@ let rec loop state =
                 | Coordinate.None -> state
                 | Coordinate.X ->
                     { state with
-                        CameraPos.X = state.CameraPos.X - 0.01f }
+                        CameraPos.X = state.CameraPos.X - speed }
                 | Coordinate.Y ->
                     { state with
-                        CameraPos.Y = state.CameraPos.Y - 0.01f }
+                        CameraPos.Y = state.CameraPos.Y - speed }
                 | Coordinate.Z ->
                     { state with
-                        CameraPos.Z = state.CameraPos.Z - 0.01f }
+                        CameraPos.Z = state.CameraPos.Z - speed }
 
             loop newState
         | state when Rl.IsKeyDown' KeyboardKey.K ->
@@ -56,13 +67,13 @@ let rec loop state =
                 | Coordinate.None -> state
                 | Coordinate.X ->
                     { state with
-                        CameraPos.X = state.CameraPos.X + 0.01f }
+                        CameraPos.X = state.CameraPos.X + speed }
                 | Coordinate.Y ->
                     { state with
-                        CameraPos.Y = state.CameraPos.Y + 0.01f }
+                        CameraPos.Y = state.CameraPos.Y + speed }
                 | Coordinate.Z ->
                     { state with
-                        CameraPos.Z = state.CameraPos.Z + 0.01f }
+                        CameraPos.Z = state.CameraPos.Z + speed }
 
             loop newState
         | state when Rl.IsKeyPressed' KeyboardKey.N ->
@@ -90,7 +101,9 @@ let rec loop state =
 
             loop newState
         | state when Rl.IsKeyDown' KeyboardKey.Down ->
-            loop { state with FOV = state.FOV - 10f }
+            loop
+                { state with
+                    FOV = Math.Clamp(state.FOV - 10f, 50.0f, Single.MaxValue) }
         | state when Rl.IsKeyDown' KeyboardKey.Up ->
             loop { state with FOV = state.FOV + 10f }
 

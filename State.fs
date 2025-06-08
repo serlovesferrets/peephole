@@ -21,20 +21,24 @@ type CameraPosition =
 type State =
     { Title: string
       ShouldDisplayText: bool
-      Cube: list<Vector3>
+      ShouldDebugPoints: bool
+      Points: list<Vector3>
       CubeSize: int
+      CubeRot: float32
       FOV: float32
       CameraPos: CameraPosition
       SelectedCamCoord: Coordinate }
 
-    static member WinX = 900
-    static member WinY = 600
+    static member WinX = 1200
+    static member WinY = 750
 
     static member Default =
         { Title = "Renderer (DEBUG)"
           ShouldDisplayText = false
-          Cube = []
-          CubeSize = 5
+          ShouldDebugPoints = false
+          Points = []
+          CubeSize = 3
+          CubeRot = 0f
           FOV = 600f
           CameraPos = CameraPosition.Default
           SelectedCamCoord = Coordinate.None }

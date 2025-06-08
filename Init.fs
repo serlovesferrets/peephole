@@ -10,4 +10,4 @@ let init: State -> State =
         Rl.HideCursor()
 
         { state with
-            Cube = Shapes.cube state.CubeSize }
+            Points = Shapes.cube state.CubeSize }
