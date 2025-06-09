@@ -2,6 +2,7 @@ module Renderer.Loop
 
 open State
 open System
+open System.Numerics
 open Raylib_cs
 open Extensions.RaylibExts
 
@@ -17,15 +18,30 @@ let rec loop state =
         Rl.EndDrawing()
 
         state')
-    |> (fun state ->
-        { state with
-            CubeRot = state.CubeRot + 0.005f })
     |> function
         | state when Rl.WindowShouldClose'() -> state
+
+        | state when Rl.IsMouseButtonDown' MouseButton.Left ->
+            loop
+                { state with
+                    Rotation =
+                        state.Rotation * Vector3(1f, 1f, 0f)
+                        + Vector3(Rl.GetMouseDelta(), state.Rotation.Z) }
+
+        | state when Rl.IsMouseButtonDown' MouseButton.Right ->
+            loop
+                { state with
+                    Rotation =
+                        state.Rotation + Vector3(0f, 0f, Rl.GetMouseDelta().Y) }
+
+
+        | state when Rl.IsKeyPressed' KeyboardKey.R ->
+            loop { state with Rotation = Vector3() }
+
         | state when Rl.IsKeyPressed' KeyboardKey.F12 ->
             loop
                 { state with
-                    ShouldDebugPoints = not state.ShouldDebugPoints }
+                    RtFlags.DebugPoints = not state.RtFlags.DebugPoints }
 
 
         | state when Rl.IsKeyPressed' KeyboardKey.Left ->

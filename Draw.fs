@@ -24,13 +24,21 @@ let toDrawOn =
     |> List.allPairs [ 0 .. State.WinY ]
     |> List.filter (fun (y, x) -> (y + 10) % 20 = 0 || (x + 10) % 20 = 0)
 
-let drawSquareCursor () =
+let inline drawSquareCursor () =
     let mX, mY = Rl.GetMousePosition'()
     let radius = 2
 
+    let color =
+        if Rl.IsMouseButtonDown' MouseButton.Left then
+            Color.Orange'
+        else if Rl.IsMouseButtonDown' MouseButton.Right then
+            Color.LightGreen'
+        else
+            Color.LightGray
+
     [ mY - radius .. mY + radius ]
     |> List.allPairs [ mX - radius .. mX + radius ]
-    |> List.iter (fun (x, y) -> Rl.DrawPixel(x, y, Color.LightGray))
+    |> List.iter (fun (x, y) -> Rl.DrawPixel(x, y, color))
 
 let drawPoint (x, y) =
     [ y - 1 .. y + 1 ]
@@ -87,10 +95,10 @@ let draw (state: State) =
     toDrawOn |> List.iter (fun (y, x) -> Rl.DrawPixel(x, y, Color.GridGray))
 
     state.Points
-    |> List.map _.RotX(state.CubeRot)
-    |> List.map _.RotY(state.CubeRot)
-    |> List.map _.RotZ(state.CubeRot)
-    |> fun pts -> if state.ShouldDebugPoints then debugPoints pts else pts
+    |> List.map _.RotX(state.Rotation.Y / 200f)
+    |> List.map _.RotY(state.Rotation.X / 200f)
+    |> List.map _.RotZ(state.Rotation.Z / 200f)
+    |> fun pts -> if state.RtFlags.DebugPoints then debugPoints pts else pts
     |> List.map (fun vec ->
         Vector3(
             X = vec.X + state.CameraPos.X,
