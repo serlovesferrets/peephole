@@ -21,7 +21,7 @@ let readModel path =
         |> Array.filter (fun s -> s[0] = "f")
         |> Array.map (
             Array.skip 1
-            >> Array.map (splitOnSlash >> Array.head >> int >> fun n -> n - 1)
+            >> Array.map (splitOnSlash >> Array.head >> int >> (fun n -> n - 1))
         )
 
     let points =
@@ -37,7 +37,7 @@ let centerModel (model: array<Vector3>) : array<Vector3> =
 
 let init: State -> State =
     fun state ->
-        let points, edges = readModel "models/unfurret.obj"
+        let points, edges = readModel $"models/{state.ModelFile}"
         let model = centerModel points
 
         Rl.InitWindow(State.WinX, State.WinY, state.Title)

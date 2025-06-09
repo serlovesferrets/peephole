@@ -103,9 +103,6 @@ let inline debugPoints (points: array<Vector3>) =
             Color.LightGray
         )
 
-// let centerWinX (vec: Vector2) = int vec.X + State.WinX / 2
-// let centerWinY (vec: Vector2) = int vec.Y + State.WinY / 2
-
 let centerVecToWin (vec: Vector2) =
     Vector2(
         X = vec.X + float32 State.WinX / 2f,
@@ -134,21 +131,24 @@ let draw (state: State) =
         |> Array.filter (fun v -> v.Z < 0.0f)
         |> Array.map (ortho_project state >> centerVecToWin)
 
-    // points |> Array.iter drawPointV
-
-    // printfn "%A" state.Edges[0]
-    // printfn "%A" state.Edges[1]
-    // printfn "%A" state.Edges[2]
-
     // Top right
+    let fileNameTextSize = 24
+
+    Rl.DrawText(
+        state.ModelFile,
+        State.WinX - 30 - Rl.MeasureText(state.ModelFile, fileNameTextSize),
+        20,
+        fileNameTextSize,
+        Color.LightGray
+    )
 
     for face in state.Edges do
         let faceLen = Array.length face
-        for i in 0 .. (faceLen - 2) do 
-            ddaLine (points[face[i]], points[face[i + 1]])
-        ddaLine (points[face[faceLen - 1]], points[face[0]])
 
-    // ddaLine (points[state.Edges[0][0]], points[state.Edges[0][1]])
+        for i in 0 .. (faceLen - 2) do
+            ddaLine (points[face[i]], points[face[i + 1]])
+
+        ddaLine (points[face[faceLen - 1]], points[face[0]])
 
 
     // Bottom left

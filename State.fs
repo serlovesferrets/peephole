@@ -23,6 +23,7 @@ type RuntimeFlags = { DebugPoints: bool }
 [<Struct>]
 type State =
     { Title: string
+      ModelFile: string
       Points: array<Vector3>
       Edges: array<array<int>>
       Size: int
@@ -37,6 +38,7 @@ type State =
 
     static member Default =
         { Title = "Renderer (DEBUG)"
+          ModelFile = "wolp.obj"
           Points = [||]
           Edges = [||]
           Size = 3
