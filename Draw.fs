@@ -46,6 +46,21 @@ let drawPoint (x, y) =
     |> Array.allPairs [| x - 1 .. x + 1 |]
     |> Array.iter (fun (x, y) -> Rl.DrawPixel(x, y, Color.Violet'))
 
+let drawPointV (vec: Vector2) = drawPoint (int vec.X, int vec.Y)
+
+let ddaLine (v1: Vector2, v2: Vector2) =
+    let deltaX, deltaY = v2.X - v1.X, v2.Y - v1.Y
+    let sideLen = max (abs deltaX) (abs deltaY)
+    let xStep, yStep = deltaX / sideLen, deltaY / sideLen
+
+    let mutable xc, yc = v1.X, v1.Y
+
+    for _ in [| 0f .. sideLen |] do
+        Rl.DrawPixel(int xc, int yc, Color.Violet')
+        xc <- xc + xStep
+        yc <- yc + yStep
+
+
 let ortho_project state (vec3: Vector3) =
     Vector2(vec3.X / vec3.Z * state.FOV, vec3.Y / vec3.Z * state.FOV)
 
@@ -88,30 +103,52 @@ let inline debugPoints (points: array<Vector3>) =
             Color.LightGray
         )
 
+// let centerWinX (vec: Vector2) = int vec.X + State.WinX / 2
+// let centerWinY (vec: Vector2) = int vec.Y + State.WinY / 2
+
+let centerVecToWin (vec: Vector2) =
+    Vector2(
+        X = vec.X + float32 State.WinX / 2f,
+        Y = vec.Y + float32 State.WinY / 2f
+    )
+
 let draw (state: State) =
     Rl.ClearBackground Color.Black
 
     toDrawOn |> Array.iter (fun (y, x) -> Rl.DrawPixel(x, y, Color.GridGray))
 
-    state.Points
-    |> Array.map _.RotX(state.Rotation.Y / 200f)
-    |> Array.map _.RotY(state.Rotation.X / 200f)
-    |> Array.map _.RotZ(state.Rotation.Z / 200f)
-    |> Array.tap (fun pts ->
-        if state.RtFlags.DebugPoints then
-            debugPoints pts)
-    |> Array.map (fun vec ->
-        Vector3(
-            X = vec.X + state.CameraPos.X,
-            Y = vec.Y + state.CameraPos.Y,
-            Z = vec.Z + state.CameraPos.Z
-        ))
-    |> Array.filter (fun v -> v.Z < 0.0f)
-    |> Array.map (ortho_project state)
-    |> Array.iter (fun vec ->
-        drawPoint (int vec.X + State.WinX / 2, int vec.Y + State.WinY / 2))
+    let points =
+        state.Points
+        |> Array.map _.RotX(state.Rotation.Y / 200f)
+        |> Array.map _.RotY(state.Rotation.X / 200f)
+        |> Array.map _.RotZ(state.Rotation.Z / 200f)
+        |> Array.tap (fun pts ->
+            if state.RtFlags.DebugPoints then
+                debugPoints pts)
+        |> Array.map (fun vec ->
+            Vector3(
+                X = vec.X + state.CameraPos.X,
+                Y = vec.Y + state.CameraPos.Y,
+                Z = vec.Z + state.CameraPos.Z
+            ))
+        |> Array.filter (fun v -> v.Z < 0.0f)
+        |> Array.map (ortho_project state >> centerVecToWin)
+
+    // points |> Array.iter drawPointV
+
+    // printfn "%A" state.Edges[0]
+    // printfn "%A" state.Edges[1]
+    // printfn "%A" state.Edges[2]
 
     // Top right
+
+    for face in state.Edges do
+        let faceLen = Array.length face
+        for i in 0 .. (faceLen - 2) do 
+            ddaLine (points[face[i]], points[face[i + 1]])
+        ddaLine (points[face[faceLen - 1]], points[face[0]])
+
+    // ddaLine (points[state.Edges[0][0]], points[state.Edges[0][1]])
 
 
     // Bottom left

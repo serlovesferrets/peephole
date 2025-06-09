@@ -24,6 +24,7 @@ type RuntimeFlags = { DebugPoints: bool }
 type State =
     { Title: string
       Points: array<Vector3>
+      Edges: array<array<int>>
       Size: int
       Rotation: Vector3
       FOV: float32
@@ -37,6 +38,7 @@ type State =
     static member Default =
         { Title = "Renderer (DEBUG)"
           Points = [||]
+          Edges = [||]
           Size = 3
           Rotation = Vector3()
           FOV = 600f

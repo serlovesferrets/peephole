@@ -24,6 +24,7 @@ type Raylib with
 type Color with
     static member GridGray = Color(30, 30, 30)
     static member Violet' = Color(133, 122, 240)
+    static member VioletLight' = Color(175, 181, 247)
     static member Red' = Color(237, 69, 57)
     static member Green' = Color(57, 227, 82)
     static member LightGreen' = Color(132, 186, 157)
