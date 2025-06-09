@@ -15,7 +15,7 @@ type CameraPosition =
       Y: float32
       Z: float32 }
 
-    static member Default = { X = 0f; Y = 0f; Z = 0f }
+    static member Default = { X = 0f; Y = 0f; Z = -2.5f }
 
 [<Struct>]
 type RuntimeFlags = { DebugPoints: bool }
@@ -23,8 +23,8 @@ type RuntimeFlags = { DebugPoints: bool }
 [<Struct>]
 type State =
     { Title: string
-      Points: list<Vector3>
-      CubeSize: int
+      Points: array<Vector3>
+      Size: int
       Rotation: Vector3
       FOV: float32
       CameraPos: CameraPosition
@@ -36,8 +36,8 @@ type State =
 
     static member Default =
         { Title = "Renderer (DEBUG)"
-          Points = []
-          CubeSize = 3
+          Points = [||]
+          Size = 3
           Rotation = Vector3()
           FOV = 600f
           CameraPos = CameraPosition.Default

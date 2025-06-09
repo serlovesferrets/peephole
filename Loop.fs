@@ -45,21 +45,21 @@ let rec loop state =
 
 
         | state when Rl.IsKeyPressed' KeyboardKey.Left ->
-            if state.CubeSize = 0 then
+            if state.Size = 0 then
                 loop state
             else
                 let newState =
                     { state with
-                        Points = Shapes.cube (state.CubeSize - 1)
-                        CubeSize = state.CubeSize - 1 }
+                        Points = Shapes.cube (state.Size - 1)
+                        Size = state.Size - 1 }
 
                 loop newState
 
         | state when Rl.IsKeyPressed' KeyboardKey.Right ->
             let newState =
                 { state with
-                    Points = Shapes.cube (state.CubeSize + 1)
-                    CubeSize = state.CubeSize + 1 }
+                    Points = Shapes.cube (state.Size + 1)
+                    Size = state.Size + 1 }
 
             loop newState
         | state when Rl.IsKeyDown' KeyboardKey.J ->

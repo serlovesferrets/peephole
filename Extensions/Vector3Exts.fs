@@ -3,6 +3,8 @@ module Extensions.Vector3Exts
 open System.Numerics
 
 type Vector3 with
+    static member FromArr(arr: array<float32>) = Vector3(arr[0], arr[1], arr[2])
+
     member inline self.RotX beta =
         Vector3(
             X = self.X,
@@ -23,3 +25,6 @@ type Vector3 with
             Y = self.X * sin beta + self.Y * cos beta,
             Z = self.Z
         )
+
+    member inline self.Dot(other: Vector3) =
+        Vector3(self.X * other.X, self.Y * other.Y, self.Z * other.Z)

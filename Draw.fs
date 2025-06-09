@@ -5,6 +5,7 @@ open System
 open System.Numerics
 open Extensions.RaylibExts
 open Extensions.Vector3Exts
+open Extensions.ArrayExts
 open Raylib_cs
 
 let toWinRatioX _state x =
@@ -20,9 +21,9 @@ let toWinRatioY _state y =
     |> int
 
 let toDrawOn =
-    [ 0 .. State.WinX ]
-    |> List.allPairs [ 0 .. State.WinY ]
-    |> List.filter (fun (y, x) -> (y + 10) % 20 = 0 || (x + 10) % 20 = 0)
+    [| 0 .. State.WinX |]
+    |> Array.allPairs [| 0 .. State.WinY |]
+    |> Array.filter (fun (y, x) -> (y + 10) % 20 = 0 || (x + 10) % 20 = 0)
 
 let inline drawSquareCursor () =
     let mX, mY = Rl.GetMousePosition'()
@@ -36,14 +37,14 @@ let inline drawSquareCursor () =
         else
             Color.LightGray
 
-    [ mY - radius .. mY + radius ]
-    |> List.allPairs [ mX - radius .. mX + radius ]
-    |> List.iter (fun (x, y) -> Rl.DrawPixel(x, y, color))
+    [| mY - radius .. mY + radius |]
+    |> Array.allPairs [| mX - radius .. mX + radius |]
+    |> Array.iter (fun (x, y) -> Rl.DrawPixel(x, y, color))
 
 let drawPoint (x, y) =
-    [ y - 1 .. y + 1 ]
-    |> List.allPairs [ x - 1 .. x + 1 ]
-    |> List.iter (fun (x, y) -> Rl.DrawPixel(x, y, Color.Violet'))
+    [| y - 1 .. y + 1 |]
+    |> Array.allPairs [| x - 1 .. x + 1 |]
+    |> Array.iter (fun (x, y) -> Rl.DrawPixel(x, y, Color.Violet'))
 
 let ortho_project state (vec3: Vector3) =
     Vector2(vec3.X / vec3.Z * state.FOV, vec3.Y / vec3.Z * state.FOV)
@@ -66,7 +67,7 @@ let showCameraCoord (textX, textY) state =
     | Coordinate.Y -> Rl.DrawText("Y", textX, textY, 16, Color.Green')
     | Coordinate.Z -> Rl.DrawText("Z", textX, textY, 16, Color.Blue')
 
-let inline debugPoints (points: list<Vector3>) =
+let inline debugPoints (points: array<Vector3>) =
     let mutable offset = 0
     let mutable count = 0
 
@@ -87,28 +88,31 @@ let inline debugPoints (points: list<Vector3>) =
             Color.LightGray
         )
 
-    points
-
 let draw (state: State) =
     Rl.ClearBackground Color.Black
 
-    toDrawOn |> List.iter (fun (y, x) -> Rl.DrawPixel(x, y, Color.GridGray))
+    toDrawOn |> Array.iter (fun (y, x) -> Rl.DrawPixel(x, y, Color.GridGray))
 
     state.Points
-    |> List.map _.RotX(state.Rotation.Y / 200f)
-    |> List.map _.RotY(state.Rotation.X / 200f)
-    |> List.map _.RotZ(state.Rotation.Z / 200f)
-    |> fun pts -> if state.RtFlags.DebugPoints then debugPoints pts else pts
-    |> List.map (fun vec ->
+    |> Array.map _.RotX(state.Rotation.Y / 200f)
+    |> Array.map _.RotY(state.Rotation.X / 200f)
+    |> Array.map _.RotZ(state.Rotation.Z / 200f)
+    |> Array.tap (fun pts ->
+        if state.RtFlags.DebugPoints then
+            debugPoints pts)
+    |> Array.map (fun vec ->
         Vector3(
             X = vec.X + state.CameraPos.X,
             Y = vec.Y + state.CameraPos.Y,
             Z = vec.Z + state.CameraPos.Z
         ))
-    |> List.filter (fun v -> v.Z < 0.0f)
-    |> List.map (ortho_project state)
-    |> List.iter (fun vec ->
+    |> Array.filter (fun v -> v.Z < 0.0f)
+    |> Array.map (ortho_project state)
+    |> Array.iter (fun vec ->
         drawPoint (int vec.X + State.WinX / 2, int vec.Y + State.WinY / 2))
+
+    // Top right
+
 
     // Bottom left
     showCameraCoord (20, State.WinY - 40) state state.SelectedCamCoord

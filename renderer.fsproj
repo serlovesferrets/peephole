@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Extensions/Vector3Exts.fs" />
     <Compile Include="Extensions/RaylibExts.fs" />
+    <Compile Include="Extensions/ArrayExts.fs" />
     <Compile Include="Shapes.fs" />
     <Compile Include="State.fs" />
     <Compile Include="Init.fs" />
