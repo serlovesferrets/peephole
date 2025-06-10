@@ -41,14 +41,14 @@ let inline drawSquareCursor () =
     |> Array.allPairs [| mX - radius .. mX + radius |]
     |> Array.iter (fun (x, y) -> Rl.DrawPixel(x, y, color))
 
-let drawPoint (x, y) =
+let inline drawPoint (x, y) =
     [| y - 1 .. y + 1 |]
     |> Array.allPairs [| x - 1 .. x + 1 |]
     |> Array.iter (fun (x, y) -> Rl.DrawPixel(x, y, Color.Violet'))
 
-let drawPointV (vec: Vector2) = drawPoint (int vec.X, int vec.Y)
+let inline drawPointV (vec: Vector2) = drawPoint (int vec.X, int vec.Y)
 
-let ddaLine (v1: Vector2, v2: Vector2) =
+let inline ddaLine (v1: Vector2, v2: Vector2) =
     let deltaX, deltaY = v2.X - v1.X, v2.Y - v1.Y
     let sideLen = max (abs deltaX) (abs deltaY)
     let xStep, yStep = deltaX / sideLen, deltaY / sideLen
@@ -61,7 +61,7 @@ let ddaLine (v1: Vector2, v2: Vector2) =
         yc <- yc + yStep
 
 
-let ortho_project state (vec3: Vector3) =
+let inline ortho_project state (vec3: Vector3) =
     Vector2(vec3.X / vec3.Z * state.FOV, vec3.Y / vec3.Z * state.FOV)
 
 let showCameraCoord (textX, textY) state =
@@ -103,17 +103,49 @@ let inline debugPoints (points: array<Vector3>) =
             Color.LightGray
         )
 
-let centerVecToWin (vec: Vector2) =
+let inline centerVecToWin (vec: Vector2) =
     Vector2(
         X = vec.X + float32 State.WinX / 2f,
         Y = vec.Y + float32 State.WinY / 2f
     )
 
-let draw (state: State) =
-    Rl.ClearBackground Color.Black
+let drawEdges: State -> array<Vector2> -> unit =
+    fun state points ->
+        for face in state.Edges do
+            let faceLen = Array.length face
 
+            for i in 0 .. (faceLen - 2) do
+                ddaLine (points[face[i]], points[face[i + 1]])
+
+            ddaLine (points[face[faceLen - 1]], points[face[0]])
+
+let drawErrMsg state =
+    if not (state.RtFlags.DirFound && state.RtFlags.ModelsFound) then
+        let message =
+            if not state.RtFlags.DirFound then
+                "No \"models\" directory found!"
+            else
+                "No models found in the \"models\" directory!"
+
+        let size = 48
+
+        Rl.DrawText(
+            message,
+            (State.WinX - Rl.MeasureText(message, size)) / 2,
+            (State.WinY - size) / 2,
+            size,
+            Color.Red'
+        )
+
+
+let draw (state: State) =
+    // Grid
+    Rl.ClearBackground Color.Black
     toDrawOn |> Array.iter (fun (y, x) -> Rl.DrawPixel(x, y, Color.GridGray))
 
+    drawErrMsg state
+
+    // Vertices
     let points =
         state.Points
         |> Array.map _.RotX(state.Rotation.Y / 200f)
@@ -131,25 +163,19 @@ let draw (state: State) =
         |> Array.filter (fun v -> v.Z < 0.0f)
         |> Array.map (ortho_project state >> centerVecToWin)
 
+    // Edges
+    drawEdges state points
+
     // Top right
     let fileNameTextSize = 24
 
     Rl.DrawText(
-        state.ModelFile,
-        State.WinX - 30 - Rl.MeasureText(state.ModelFile, fileNameTextSize),
+        state.ModelName,
+        State.WinX - 30 - Rl.MeasureText(state.ModelName, fileNameTextSize),
         20,
         fileNameTextSize,
         Color.LightGray
     )
-
-    for face in state.Edges do
-        let faceLen = Array.length face
-
-        for i in 0 .. (faceLen - 2) do
-            ddaLine (points[face[i]], points[face[i + 1]])
-
-        ddaLine (points[face[faceLen - 1]], points[face[0]])
-
 
     // Bottom left
     showCameraCoord (20, State.WinY - 40) state state.SelectedCamCoord
@@ -157,6 +183,8 @@ let draw (state: State) =
     // Bottom right
     Rl.DrawFPS(1100, State.WinY - 40)
 
+    // Cursor
     drawSquareCursor ()
 
+    // Loop
     state

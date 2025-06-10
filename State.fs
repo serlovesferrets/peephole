@@ -18,12 +18,17 @@ type CameraPosition =
     static member Default = { X = 0f; Y = 0f; Z = -2.5f }
 
 [<Struct>]
-type RuntimeFlags = { DebugPoints: bool }
+type RuntimeFlags =
+    { DebugPoints: bool
+      DirFound: bool
+      ModelsFound: bool }
 
 [<Struct>]
 type State =
     { Title: string
-      ModelFile: string
+      ModelIndex: int
+      ModelName: string
+      Models: array<string>
       Points: array<Vector3>
       Edges: array<array<int>>
       Size: int
@@ -36,9 +41,14 @@ type State =
     static member WinX = 1200
     static member WinY = 750
 
+    member self.CurrentModel () = 
+        self.Models[self.ModelIndex]
+
     static member Default =
         { Title = "Renderer (DEBUG)"
-          ModelFile = "wolp.obj"
+          ModelIndex = -1
+          ModelName = ""
+          Models = [||]
           Points = [||]
           Edges = [||]
           Size = 3
@@ -46,4 +56,9 @@ type State =
           FOV = 600f
           CameraPos = CameraPosition.Default
           SelectedCamCoord = Coordinate.None
-          RtFlags = { DebugPoints = false } }
+          RtFlags =
+            { DebugPoints = false
+              DirFound = true
+              ModelsFound = true } }
+
+

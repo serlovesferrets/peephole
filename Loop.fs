@@ -1,12 +1,25 @@
 module Renderer.Loop
 
 open State
+open Shapes
 open System
+open System.IO
 open System.Numerics
 open Raylib_cs
 open Extensions.RaylibExts
 
 let private speed = 0.03f
+
+let selectModelUnchecked: State -> int -> State =
+    fun state index ->
+        let points, edges = readModel state.Models[index]
+        let points = centerModel points
+
+        { state with
+            ModelIndex = index
+            ModelName = Path.GetFileName state.Models[index]
+            Points = points
+            Edges = edges }
 
 [<TailCall>]
 let rec loop state =
@@ -45,23 +58,26 @@ let rec loop state =
 
 
         | state when Rl.IsKeyPressed' KeyboardKey.Left ->
-            if state.Size = 0 then
+            if not state.RtFlags.ModelsFound || state.ModelIndex = 0 then
                 loop state
             else
-                let newState =
-                    { state with
-                        Points = Shapes.cube (state.Size - 1)
-                        Size = state.Size - 1 }
-
-                loop newState
+                loop
+                    { selectModelUnchecked state (state.ModelIndex - 1) with
+                        CameraPos = CameraPosition.Default
+                        Rotation = Vector3() }
 
         | state when Rl.IsKeyPressed' KeyboardKey.Right ->
-            let newState =
-                { state with
-                    Points = Shapes.cube (state.Size + 1)
-                    Size = state.Size + 1 }
+            if
+                not state.RtFlags.ModelsFound
+                || state.ModelIndex = Array.length state.Models - 1
+            then
+                loop state
+            else
+                loop
+                    { selectModelUnchecked state (state.ModelIndex + 1) with
+                        CameraPos = CameraPosition.Default
+                        Rotation = Vector3() }
 
-            loop newState
         | state when Rl.IsKeyDown' KeyboardKey.J ->
             let newState =
                 match state.SelectedCamCoord with
