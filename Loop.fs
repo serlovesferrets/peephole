@@ -51,7 +51,7 @@ let rec loop state =
         | state when Rl.IsKeyPressed' KeyboardKey.R ->
             loop { state with Rotation = Vector3() }
 
-        | state when Rl.IsKeyPressed' KeyboardKey.F12 ->
+        | state when Rl.IsKeyPressed' KeyboardKey.F11 ->
             loop
                 { state with
                     RtFlags.DebugPoints = not state.RtFlags.DebugPoints }

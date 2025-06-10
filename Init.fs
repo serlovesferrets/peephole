@@ -4,7 +4,6 @@ open System.IO
 open State
 open Renderer.Shapes
 open Extensions.RaylibExts
-open Extensions.ArrayExts
 
 let init: State -> State =
     fun state ->
@@ -44,4 +43,3 @@ let init: State -> State =
             Edges = edges
             RtFlags.DirFound = dirFound
             RtFlags.ModelsFound = modelsFound }
-
