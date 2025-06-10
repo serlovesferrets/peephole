@@ -178,6 +178,7 @@ let draw (state: State) =
     )
 
     // Bottom left
+    Rl.DrawText($"FOV: {state.FOV}", 20, State.WinY - 65, 14, Color.LightGray)
     showCameraCoord (20, State.WinY - 40) state state.SelectedCamCoord
 
     // Bottom right
