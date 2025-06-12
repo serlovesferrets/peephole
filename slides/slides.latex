@@ -1,0 +1,159 @@
+%! TeX program = lualatex
+\documentclass{beamer}
+\usepackage{cancel}
+
+\usetheme{metropolis}
+
+\definecolor{VioletD}{RGB}{49,11,77}
+\definecolor{VioletM}{RGB}{82,32,129}
+\definecolor{VioletL}{RGB}{186,175,210}
+\definecolor{VioletSl}{RGB}{134,48,197}
+\setbeamercolor{frametitle}{bg=VioletD,fg=white}
+\setbeamercolor{title separator}{fg=VioletL,bg=VioletL}
+\setbeamercolor{progress bar in section page}{fg=VioletD,bg=VioletL}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=VioletSl,
+    urlcolor=VioletSl,
+}
+
+\newcommand{\name}{Sangion Ortolan Giorgio}
+
+\title{\textsc{Progetto maturità}: .obj files viewer }
+\date{\today}
+
+\author{\name}
+\institute{
+    ITIS Alessandrini Mainardi di Vittuone,
+    Classe 5\textsuperscript{a}Ci
+}
+
+\begin{document}
+\maketitle
+
+\begin{frame}{Tabella dei contenuti}
+	\tableofcontents
+\end{frame}
+
+\newcommand{\sectOneTitle}{Sul progetto}
+
+\section{Sul progetto}
+
+\begin{frame}{\sectOneTitle}
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=8cm]{assets/screenshot000.png}
+
+	\end{figure}
+	È un programma capace di caricare,
+	mostrare ed esaminare modelli 3D, particolarmente nel formato
+	\href{https://en.wikipedia.org/wiki/Wavefront_.obj_file}{Wavefront OBJ}.
+
+\end{frame}
+
+\begin{frame}{\sectOneTitle}
+	È stato scritto tramite la libreria \href{https://www.raylib.com/}{Raylib},
+	usando solamente:
+	\begin{itemize}
+		\item Le funzioni per aprire una finestra e disegnare il testo
+		\item Le funzioni per reagire ad eventi (es. movimento
+		      del mouse, uso della tastiera)
+		\item    \texttt{void DrawPixel(int posX, int posY, Color color)}
+	\end{itemize}
+\end{frame}
+
+\newcommand{\sectTwoTitle}{Motivazione}
+\section{\sectTwoTitle}
+
+\begin{frame}{\sectTwoTitle}
+	La motivazione del progetto è stata la possibilità di approfondire
+	dei campi ai quali sono interessato e di rielaborare le nuove conoscenze
+	apprese in maniera personale.
+\end{frame}
+
+\newcommand{\sectThreeTitle}{Matematica utilizzata}
+\section{\sectThreeTitle}
+
+\newcommand{\fov}{\text{FOV}}
+
+\begin{frame}{La proiezione di punti}
+	Proiezione ortografica:
+	\begin{align*}
+		x_{o} = x \cdot \fov
+		\hspace{40pt}
+		y_o = y \cdot \fov
+	\end{align*}
+
+	Perspective divide:
+	\begin{align*}
+		x_p = \frac{x}{z} \cdot \fov
+		\hspace{40pt}
+		y_p = \frac{y}{z} \cdot \fov
+	\end{align*}
+\end{frame}
+
+\begin{frame}{Le trasformazioni lineari}
+	\begin{align*}
+		\cos (\alpha) = x_0 / r         & \Rightarrow x_0 = r \cos (\alpha)         \\
+		\sin (\alpha) = y_0 / r         & \Rightarrow y_0 = r \sin (\alpha)         \\
+		\\
+		\cos (\alpha + \beta) = x_1 / r & \Rightarrow x_1 = r \cos (\alpha + \beta) \\
+		\sin (\alpha + \beta) = y_1 / r & \Rightarrow y_1 = r \sin (\alpha + \beta) \\
+	\end{align*}
+\end{frame}
+
+\begin{frame}{Le trasformazioni lineari (Asse Z)}
+	\begin{align*}
+		x_1 = r \cos (\alpha + \beta) & = r (\cos \alpha \cos \beta - \sin \alpha \sin \beta) \\
+		x_0 = r \cos (\alpha)         & \Rightarrow x_0 \cos \beta - r \sin \alpha \sin \beta \\
+		y_0 = r \sin (\alpha)         & \Rightarrow x_0 \cos \beta - y_0 \sin \beta           \\
+		\\
+		y_1 = r \sin (\alpha + \beta) & = r (\sin \alpha \cos \beta + \cos \alpha \sin \beta) \\
+		x_0 = r \cos (\alpha)         & \Rightarrow r \sin \alpha \cos \beta - x_0 \sin \beta \\
+		y_0 = r \sin (\alpha)         & \Rightarrow y_0 \cos \beta - x_0 \sin \beta
+	\end{align*}
+\end{frame}
+
+\newcommand{\incr}{{\text{inc}}}
+\newcommand{\round}{{\text{round}}}
+\begin{frame}{L'algoritmo DDA}
+	\begin{align*}
+		f                          & = mx + q  \in [ x_a; x_b ]                                   \\
+		(\Delta x, \ \Delta y)     & = \left| x_b - x_a \right|, \ \left| f(x_b) - f(x_a) \right| \\
+		\ell                       & = \max \left\{ \Delta x, \ \Delta y \right\}                 \\
+		(x_\incr, \ y_\incr)       & = \Delta x / \ell, \ \Delta y / \ell                         \\
+		\forall P \in \mathcal {P} & . \ \text{draw}(\round (P_x), \ \round(P_y))                 \\
+		: \mathcal {P}             & = \{
+		(x_a, y_a), (x_a + x_\incr, y_a + y_\incr ),                                              \\
+		                           & \dots, (x_b - x_\incr, y_b - y_\incr), (x_b, y_b) \}
+	\end{align*}
+\end{frame}
+
+\newcommand{\sectFourTitle}{Risorse utilizzate}
+\section{\sectFourTitle}
+
+\begin{frame}{\sectFourTitle}
+	\begin{itemize}
+		\item \href{https://pikuma.com/courses/learn-3d-computer-graphics-programming}{3D Computer Graphics Programming (Pikuma)}
+		\item \href{https://www.raylib.com/cheatsheet/cheatsheet.html}{Raylib official cheatsheet (Raysan5)}
+		\item \href{https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/}{F\# language reference (Microsoft)}
+		\item \href{https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/}{C\# language reference (Microsoft)}
+	\end{itemize}
+\end{frame}
+
+\newcommand{\sectFiveTitle}{Prossimi passi}
+\section{\sectFiveTitle}
+
+\begin{frame}{\sectFiveTitle}
+	\begin{itemize}
+		\item Usare un algoritmo più efficiente per mostrare le linee,
+		      come quello di Bresenhan
+		\item Gestire il caricamento (e il rendering) delle facce
+		\item Effettuare il rendering con la GPU, tramite una libreria come
+		      \href{https://dotnet.github.io/Silk.NET/}{Silk.NET}
+	\end{itemize}
+\end{frame}
+
+\end{document}
